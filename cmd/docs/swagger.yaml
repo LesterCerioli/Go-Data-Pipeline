@@ -1,0 +1,114 @@
+swagger: "2.0"
+info:
+  title: Go Pipeline API
+  description: REST API for configuring data pipelines.
+  version: 1.0.0
+basePath: /api/v1
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /pipelines:
+    get:
+      summary: List pipeline definitions
+      responses:
+        "200":
+          description: Pipeline definitions
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Pipeline"
+    post:
+      summary: Create a pipeline definition
+      parameters:
+        - in: body
+          name: pipeline
+          required: true
+          schema:
+            $ref: "#/definitions/PipelineInput"
+      responses:
+        "201":
+          description: Created pipeline
+          schema:
+            $ref: "#/definitions/Pipeline"
+        "400":
+          description: Invalid request
+  /pipelines/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        format: uint64
+    get:
+      summary: Get a pipeline definition
+      responses:
+        "200":
+          description: Pipeline
+          schema:
+            $ref: "#/definitions/Pipeline"
+        "404":
+          description: Pipeline not found
+    put:
+      summary: Update a pipeline definition
+      parameters:
+        - in: body
+          name: pipeline
+          required: true
+          schema:
+            $ref: "#/definitions/PipelineInput"
+      responses:
+        "200":
+          description: Updated pipeline
+          schema:
+            $ref: "#/definitions/Pipeline"
+        "400":
+          description: Invalid request
+        "404":
+          description: Pipeline not found
+    delete:
+      summary: Delete a pipeline definition
+      responses:
+        "204":
+          description: Pipeline deleted
+        "404":
+          description: Pipeline not found
+definitions:
+  PipelineInput:
+    type: object
+    required:
+      - name
+      - source
+      - destination
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      source:
+        type: object
+        additionalProperties: true
+      destination:
+        type: object
+        additionalProperties: true
+      status:
+        type: string
+        enum: [draft, active, paused]
+  Pipeline:
+    allOf:
+      - $ref: "#/definitions/PipelineInput"
+      - type: object
+        properties:
+          id:
+            type: integer
+            format: uint64
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
